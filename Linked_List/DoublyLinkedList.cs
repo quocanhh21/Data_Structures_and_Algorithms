@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Runtime.Serialization;
 
 namespace Linked_List
 {
@@ -26,7 +27,7 @@ namespace Linked_List
             else
             {
                 head.Previous = new Node<T>(element, null, head);
-                head = tail.Previous;
+                head = head.Previous;
             }
         }
 
@@ -65,7 +66,7 @@ namespace Linked_List
 
         public bool Contains(T item)
         {
-            throw new NotImplementedException();
+            return IndexOf(item) != -1;
         }
 
         public IEnumerator<T> GetEnumerator()
@@ -75,7 +76,24 @@ namespace Linked_List
 
         public int IndexOf(T item)
         {
-            throw new NotImplementedException();
+            int index = 0;
+
+            Node<T> currentNode = head;
+            while (currentNode != null)
+            {
+                if (currentNode.Data.Equals(item))
+                {
+                    return index;
+                }
+                currentNode = currentNode.Next;
+                if (currentNode == null)
+                {
+                    return -1;
+                }
+                index++;
+            }
+
+            return index;
         }
 
         public T PeekFirst()
@@ -98,17 +116,62 @@ namespace Linked_List
 
         public T Remove(Node<T> node)
         {
-            throw new NotImplementedException();
+            if (node.Previous == null) return RemoveFirst();
+            if (node.Next == null) return RemoveLast();
+
+            node.Previous.Next = node.Next;
+            node.Next.Previous = node.Previous;
+
+            T data = node.Data;
+            size--;
+
+            // Reset
+            node.Data = default;
+            node.Previous = null;
+            node.Next = null;
+            node = null;
+
+            return data;
         }
 
         public bool Remove(T item)
         {
-            throw new NotImplementedException();
+            Node<T> currentNode = head;
+
+            while (currentNode != null)
+            {
+                if (currentNode.Data.Equals(item))
+                {
+                    Remove(currentNode);
+                    return true;
+                }
+                currentNode = currentNode.Next;
+            }
+            return false;
         }
 
         public T RemoveAt(int index)
         {
-            throw new NotImplementedException();
+            if (index <0 || index >= size) throw new ArgumentOutOfRangeException("Index out of range!");
+
+            Node<T> currentNode;
+            int i;
+            if (index < size / 2)
+            {
+                for (i = 0, currentNode = head; i != index; i++)
+                {
+                    currentNode = currentNode.Next;
+                }
+            }
+            else
+            {
+                for (i = size - 1, currentNode = tail; i != index; i--)
+                {
+                    currentNode = currentNode.Previous;
+                }
+            }
+
+            return Remove(currentNode);
         }
 
         public T RemoveFirst()
@@ -129,7 +192,18 @@ namespace Linked_List
 
         public T RemoveLast()
         {
-            throw new NotImplementedException();
+            if(IsEmpty)
+            {
+                throw new InvalidOperationException("Empty linked list!");
+            }
+
+            T data = tail.Data;
+            tail = tail.Previous;
+            size--;
+            if (IsEmpty) head = null;
+            else tail.Next = null;
+
+            return data;
         }
 
         public void Traverse()
